@@ -9,7 +9,7 @@ version = "0.1.0"
 description = "Retrieval Diffusion"
 
 authors = [
-    {name = "Anton Kutsenko", email = ""}, 
+    {name = "Anton Kutsenko", email = ""},
 ]
 
 requires-python = ">=3.12,<3.13"
