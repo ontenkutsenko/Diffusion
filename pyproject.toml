@@ -1,0 +1,46 @@
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[project]
+name = "retrieval_diffusion"
+version = "0.1.0"
+
+description = "Retrieval Diffusion"
+
+authors = [
+    {name = "Anton Kutsenko", email = ""}, 
+]
+
+requires-python = ">=3.12,<3.13"
+readme = "README.md"
+license = {text = "Proprietary"}
+dependencies = [
+    "pip",
+    "diffusers>=0.32.2",
+    "torchvision>=0.21.0",
+    "einops>=0.8.1",
+    "matplotlib>=3.10.1",
+    "transformers>=4.49.0"
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.1.0",
+    "isort<6.0.0,>=5.13.2",
+    "ipykernel<=7.0.0,>=6.29.5",
+]
+test = ["pytest<9,>=8.3.3", "pytest-cov<7.0.0,>=6.0.0"]
+doc = [ "sphinx<9.0.0,>=8.0.0" ]
+
+
+
+[tool.pdm]
+# to generate the wheel with pdm build
+distribution = true
+
+[tool.pdm.scripts]
+precommit = "sh -c 'pre-commit run --show-diff-on-failure --color=always --files $(git ls-files)'"
+
+[tool.ruff]
+lint.ignore=["E402","F811", "E722","E712","F821"]
