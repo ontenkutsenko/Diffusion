@@ -49,3 +49,6 @@ def save_trajectory(trajectory: str,
                             data=trajectory, 
                             compression="gzip", 
                             compression_opts=4)
+            
+def generate_trajectory_from_latents():
+    pass
