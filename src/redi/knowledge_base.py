@@ -28,7 +28,6 @@ def create_kb(
 
     with h5py.File(trajectory_path, "r") as trajectory_file:
         traj_names = list(trajectory_file.keys())
-        print(traj_names)
 
         all_keys = []
 
