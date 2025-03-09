@@ -60,17 +60,15 @@ def save_trajectory(trajectory: str,
 def generate_trajectory_from_latents(
                         prompt: str, 
                         latent: np.ndarray,
+                        pipeline: ReSDPipeline,
                         scheduler: SchedulerMixin,
                         num_inference_steps: int = 30,
                         value_margin_steps: int = 10,
-                        device: str = "cpu"):
-    pipe = ReSDPipeline.from_pretrained(
-        "stable-diffusion-v1-5/stable-diffusion-v1-5", torch_dtype=torch.float16
-    )
-
-    pipe = pipe.to(device)
+                        device: str = "cpu",
+                        ) -> torch.Tensor:
+    pipeline = pipeline.to(device)
     generator = torch.Generator(device).manual_seed(1024)
-    img = pipe(
+    img = pipeline(
         prompt,
         head_start_latents=torch.tensor(latent).to(device),
         head_start_step=num_inference_steps - value_margin_steps,
