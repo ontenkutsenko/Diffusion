@@ -2,6 +2,7 @@ from collections.abc import Callable
 
 import torch
 from diffusers.pipelines import StableDiffusionPipeline
+from diffusers import SchedulerMixin
 from diffusers.pipelines.stable_diffusion import StableDiffusionPipelineOutput
 from diffusers.utils import logging
 
@@ -31,6 +32,7 @@ class ReSDPipeline(StableDiffusionPipeline):
         return_dict: bool = True,
         callback: Callable[[int, int, torch.FloatTensor], None] | None = None,
         callback_steps: int | None = 1,
+        scheduler: SchedulerMixin | None = None,
     ):
         r"""
         Function invoked when calling the pipeline for generation.
@@ -86,6 +88,8 @@ class ReSDPipeline(StableDiffusionPipeline):
             list of `bool`s denoting whether the corresponding generated image likely represents "not-safe-for-work"
             (nsfw) content, according to the `safety_checker`.
         """
+        if scheduler:
+            self.scheduler = scheduler.from_config(self.scheduler.config)
         # import pdb; pdb.set_trace()
         # 0. Default height and width to unet
         height = height or self.unet.config.sample_size * self.vae_scale_factor
