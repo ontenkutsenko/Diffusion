@@ -29,7 +29,11 @@ dependencies = [
     "xxhash>=3.5.0",
     "tqdm>=4.67.1",
     "lmdb>=1.6.2",
-    "scikit-learn>=1.6.1"
+    "scikit-learn>=1.6.1",
+    "pandas>=2.2.3",
+    "pyarrow>=19.0.1",
+    "ollama>=0.4.7",
+    "sentence-transformers>=3.4.1"
 ]
 
 [dependency-groups]
