@@ -33,8 +33,9 @@ def generate_trajectory(prompt: str,
     ).images
 
     #show image
-    plt.imshow(images[0])
-    plt.show()
+    # plt.imshow(images[0])
+    # plt.show()
+    del images
 
     return (trajectory, prompt)
 
