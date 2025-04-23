@@ -91,7 +91,7 @@ def retrieve_nearest_neigbours(query_array,
     index = faiss.read_index(index_path)
 
     # Perform FAISS search
-    D, I = index.search(query_flat, num_neighbours)  # Find 1 nearest neighbor
+    D, I = index.search(query_flat, num_neighbours)  
     nearest_ids = I[0]
 
     with h5py.File(kb_path, "r") as kb_file:
