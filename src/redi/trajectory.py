@@ -7,6 +7,7 @@ import xxhash
 import matplotlib.pyplot as plt
 import numpy as np
 import faiss
+import time
 
 def generate_trajectory(prompt: str, 
                         pipeline: StableDiffusionPipeline,
@@ -33,8 +34,8 @@ def generate_trajectory(prompt: str,
     ).images
 
     #show image
-    # plt.imshow(images[0])
-    # plt.show()
+    plt.imshow(images[0])
+    plt.show()
     del images
 
     return (trajectory, prompt)
@@ -68,18 +69,41 @@ def generate_trajectory_from_latents(
                         device: str = "cpu",
                         ) -> torch.Tensor:
     pipeline = pipeline.to(device)
-    generator = torch.Generator(device).manual_seed(1024)
-    img = pipeline(
-        prompt,
-        head_start_latents=torch.tensor(latent).to(device),
+    # generator = torch.Generator(device).manual_seed(1024)
+    # img = pipeline(
+    #     prompt,
+    #     head_start_latents=torch.tensor(latent).to(device),
+    #     head_start_step=num_inference_steps - value_margin_steps,
+    #     guidance_scale=7.5,
+    #     generator=generator,
+    #     num_inference_steps=num_inference_steps,
+    #     scheduler = scheduler
+    # ).images[0]
+    img = pipeline.generate_from_latent(
+        prompt = prompt,
+        latent=torch.tensor(latent).to(device),
         head_start_step=num_inference_steps - value_margin_steps,
         guidance_scale=7.5,
-        generator=generator,
+        # generator=generator,
         num_inference_steps=num_inference_steps,
         scheduler = scheduler
-    ).images[0]
+    )
 
     return img
+
+# def generate_from_latent(
+#         self,
+#         latent: torch.FloatTensor,
+#         prompt: str,
+#         num_inference_steps: int = 30,
+#         head_start_step: int = 0,
+#         eta: float = 0.0,
+#         guidance_scale: float = 7.5,
+#         output_type: str = "pil",
+#         scheduler: SchedulerMixin | None = None,
+#         device: str = "cpu",
+#     ):
+
 
 
 def retrieve_nearest_neigbours(query_array, 
@@ -89,10 +113,13 @@ def retrieve_nearest_neigbours(query_array,
                      ) -> list[tuple[np.ndarray, float, str]]:
     """Retrieve the closest stored array using FAISS"""
     query_flat = query_array.flatten().reshape(1, -1)
+    #TODOD: read index outside the function
     index = faiss.read_index(index_path)
 
     # Perform FAISS search
+    start = time.time()
     D, I = index.search(query_flat, num_neighbours)  
+    end = time.time()
     nearest_ids = I[0]
 
     with h5py.File(kb_path, "r") as kb_file:
@@ -101,4 +128,4 @@ def retrieve_nearest_neigbours(query_array,
             nearest_id_str = str(nearest_ids[i])
             stored_array = kb_file[nearest_id_str][()]  
             neighbours.append((stored_array, D[0][i], nearest_id_str))
-    return neighbours
+    return neighbours, end - start
