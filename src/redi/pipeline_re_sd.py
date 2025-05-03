@@ -1,12 +1,12 @@
 from collections.abc import Callable
 
+import numpy as np
 import torch
-from diffusers.pipelines import StableDiffusionPipeline
 from diffusers import SchedulerMixin
+from diffusers.pipelines import StableDiffusionPipeline
 from diffusers.pipelines.stable_diffusion import StableDiffusionPipelineOutput
 from diffusers.utils import logging
 from PIL import Image
-import numpy as np
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 
@@ -224,7 +224,7 @@ class ReSDPipeline(StableDiffusionPipeline):
         return StableDiffusionPipelineOutput(
             images=image, nsfw_content_detected=has_nsfw_concept
         )
-        
+
     @torch.no_grad()
     def generate_from_latent(
         self,
@@ -240,7 +240,7 @@ class ReSDPipeline(StableDiffusionPipeline):
         """
         Generate an image by resuming denoising from a given latent.
         """
-        
+
         if scheduler:
             self.scheduler = scheduler.from_config(self.scheduler.config)
 
@@ -263,14 +263,22 @@ class ReSDPipeline(StableDiffusionPipeline):
 
         with self.progress_bar(total=len(timesteps)) as progress_bar:
             for t in timesteps:
-                latent_model_input = torch.cat([latent] * 2) if do_classifier_free_guidance else latent
-                latent_model_input = self.scheduler.scale_model_input(latent_model_input, t)
+                latent_model_input = (
+                    torch.cat([latent] * 2) if do_classifier_free_guidance else latent
+                )
+                latent_model_input = self.scheduler.scale_model_input(
+                    latent_model_input, t
+                )
 
-                noise_pred = self.unet(latent_model_input, t, encoder_hidden_states=text_embeddings).sample
+                noise_pred = self.unet(
+                    latent_model_input, t, encoder_hidden_states=text_embeddings
+                ).sample
 
                 if do_classifier_free_guidance:
                     noise_pred_uncond, noise_pred_text = noise_pred.chunk(2)
-                    noise_pred = noise_pred_uncond + guidance_scale * (noise_pred_text - noise_pred_uncond)
+                    noise_pred = noise_pred_uncond + guidance_scale * (
+                        noise_pred_text - noise_pred_uncond
+                    )
 
                 # Denoising step
                 latent = self.scheduler.step(noise_pred, t, latent).prev_sample
@@ -284,7 +292,7 @@ class ReSDPipeline(StableDiffusionPipeline):
             image = self.numpy_to_pil(image)
 
         return image
-    
+
     @torch.no_grad()
     def decode_latent_to_image(
         self,
@@ -302,13 +310,12 @@ class ReSDPipeline(StableDiffusionPipeline):
         # Ensure latent is torch tensor
         if isinstance(latent, np.ndarray):
             latent = torch.from_numpy(latent)
-            
+
         device = self._execution_device
-        
-        latent = latent.to(device).half() # Add batch dim if missing
+
+        latent = latent.to(device).half()  # Add batch dim if missing
         vae = self.vae.to(device)
         latent = latent / 0.18215
-
 
         # Decode latent with VAE
         with torch.no_grad():
