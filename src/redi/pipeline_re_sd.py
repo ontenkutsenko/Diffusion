@@ -5,6 +5,8 @@ from diffusers.pipelines import StableDiffusionPipeline
 from diffusers import SchedulerMixin
 from diffusers.pipelines.stable_diffusion import StableDiffusionPipelineOutput
 from diffusers.utils import logging
+from PIL import Image
+import numpy as np
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 
@@ -222,3 +224,106 @@ class ReSDPipeline(StableDiffusionPipeline):
         return StableDiffusionPipelineOutput(
             images=image, nsfw_content_detected=has_nsfw_concept
         )
+        
+    @torch.no_grad()
+    def generate_from_latent(
+        self,
+        latent: torch.FloatTensor,
+        prompt: str,
+        num_inference_steps: int = 30,
+        head_start_step: int = 0,
+        eta: float = 0.0,
+        guidance_scale: float = 7.5,
+        output_type: str = "pil",
+        scheduler: SchedulerMixin | None = None,
+    ):
+        """
+        Generate an image by resuming denoising from a given latent.
+        """
+        
+        if scheduler:
+            self.scheduler = scheduler.from_config(self.scheduler.config)
+
+        device = self._execution_device
+        self.scheduler.set_timesteps(num_inference_steps, device=device)
+        self.scheduler.eta = eta
+
+        timesteps = self.scheduler.timesteps[head_start_step:]
+
+        # Encode prompt
+        text_embeddings = self._encode_prompt(
+            prompt,
+            device,
+            1,
+            guidance_scale > 1.0,
+            None,
+        )
+
+        do_classifier_free_guidance = guidance_scale > 1.0
+
+        with self.progress_bar(total=len(timesteps)) as progress_bar:
+            for t in timesteps:
+                latent_model_input = torch.cat([latent] * 2) if do_classifier_free_guidance else latent
+                latent_model_input = self.scheduler.scale_model_input(latent_model_input, t)
+
+                noise_pred = self.unet(latent_model_input, t, encoder_hidden_states=text_embeddings).sample
+
+                if do_classifier_free_guidance:
+                    noise_pred_uncond, noise_pred_text = noise_pred.chunk(2)
+                    noise_pred = noise_pred_uncond + guidance_scale * (noise_pred_text - noise_pred_uncond)
+
+                # Denoising step
+                latent = self.scheduler.step(noise_pred, t, latent).prev_sample
+
+                progress_bar.update()
+
+        # Decode
+        image = self.decode_latents(latent)
+
+        if output_type == "pil":
+            image = self.numpy_to_pil(image)
+
+        return image
+    
+    @torch.no_grad()
+    def decode_latent_to_image(
+        self,
+        latent: np.ndarray | torch.Tensor,
+    ) -> Image.Image:
+        """
+        Decodes a latent into a final PIL image using a VAE decoder.
+
+        Args:
+            latent (np.ndarray or torch.Tensor): The saved latent to decode.
+
+        Returns:
+            PIL.Image: The decoded image.
+        """
+        # Ensure latent is torch tensor
+        if isinstance(latent, np.ndarray):
+            latent = torch.from_numpy(latent)
+            
+        device = self._execution_device
+        
+        latent = latent.to(device).half() # Add batch dim if missing
+        vae = self.vae.to(device)
+        latent = latent / 0.18215
+
+
+        # Decode latent with VAE
+        with torch.no_grad():
+            decoded = vae.decode(latent).sample
+
+        # Postprocess to [0,1]
+        decoded = (decoded / 2 + 0.5).clamp(0, 1)
+
+        # Convert to CPU numpy
+        decoded = decoded.cpu().permute(0, 2, 3, 1).numpy()[0]  # (C, H, W) -> (H, W, C)
+
+        # Scale to [0,255] and uint8
+        decoded = (decoded * 255).astype(np.uint8)
+
+        # Convert to PIL
+        image = Image.fromarray(decoded)
+
+        return image
