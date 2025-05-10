@@ -175,3 +175,7 @@ cython_debug/
 
 #pickle files
 *.pkl
+
+# some files
+instances_train2017.json
+captions_train2017.json
