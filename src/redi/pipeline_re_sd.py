@@ -261,29 +261,29 @@ class ReSDPipeline(StableDiffusionPipeline):
 
         do_classifier_free_guidance = guidance_scale > 1.0
 
-        with self.progress_bar(total=len(timesteps)) as progress_bar:
-            for t in timesteps:
-                latent_model_input = (
-                    torch.cat([latent] * 2) if do_classifier_free_guidance else latent
+        # with self.progress_bar(total=len(timesteps)) as progress_bar:
+        for t in timesteps:
+            latent_model_input = (
+                torch.cat([latent] * 2) if do_classifier_free_guidance else latent
+            )
+            latent_model_input = self.scheduler.scale_model_input(
+                latent_model_input, t
+            )
+
+            noise_pred = self.unet(
+                latent_model_input, t, encoder_hidden_states=text_embeddings
+            ).sample
+
+            if do_classifier_free_guidance:
+                noise_pred_uncond, noise_pred_text = noise_pred.chunk(2)
+                noise_pred = noise_pred_uncond + guidance_scale * (
+                    noise_pred_text - noise_pred_uncond
                 )
-                latent_model_input = self.scheduler.scale_model_input(
-                    latent_model_input, t
-                )
 
-                noise_pred = self.unet(
-                    latent_model_input, t, encoder_hidden_states=text_embeddings
-                ).sample
+            # Denoising step
+            latent = self.scheduler.step(noise_pred, t, latent).prev_sample
 
-                if do_classifier_free_guidance:
-                    noise_pred_uncond, noise_pred_text = noise_pred.chunk(2)
-                    noise_pred = noise_pred_uncond + guidance_scale * (
-                        noise_pred_text - noise_pred_uncond
-                    )
-
-                # Denoising step
-                latent = self.scheduler.step(noise_pred, t, latent).prev_sample
-
-                progress_bar.update()
+                # progress_bar.update()
 
         # Decode
         image = self.decode_latents(latent)

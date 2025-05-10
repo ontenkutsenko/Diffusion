@@ -39,8 +39,8 @@ def generate_trajectory(
     ).images
 
     # show image
-    plt.imshow(images[0])
-    plt.show()
+    # plt.imshow(images[0])
+    # plt.show()
     del images
 
     return (trajectory, prompt)
@@ -72,7 +72,7 @@ def generate_trajectory_from_latents(
     num_inference_steps: int = 30,
     value_margin_steps: int = 10,
     device: str = "cpu",
-) -> torch.Tensor:
+):
     pipeline = pipeline.to(device)
     # generator = torch.Generator(device).manual_seed(1024)
     # img = pipeline(
