@@ -103,9 +103,9 @@ def create_kb(
                     compression="gzip",
                     compression_opts=4,
                 )
-                faiss.write_index(index, faiss_index_path)
 
                 prompts_to[str(id)] = prompts_from[name]
+            faiss.write_index(index, faiss_index_path)
 
     with open(prompts_to_path, "w") as f:
         json.dump(prompts_to, f, indent=4)
