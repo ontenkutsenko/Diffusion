@@ -1,2 +1,0 @@
-Value Margin Steps,CLIP Score Real,CLIP Score Generated,CLIP Score Coco,Pick score retrieval vs gen,Pick score gen vs coco,Pick score retrieval vs coco,Inception Score Real,Inception Score Generated,Inception Score Coco,FID retrieval vs gen,FID gen vs coco,FID retrieval vs coco
-15,31.4385,28.319,30.3002,0.30149070802124334,0.5793283226620406,0.3830151885444066,22.76358985900879,18.980525970458984,18.987407684326172,28.955358505249023,51.893341064453125,55.87562942504883
