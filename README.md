@@ -19,7 +19,7 @@ This project explores **sampling efficiency in Latent Diffusion Models** using r
 
 ## 📂 Structure
 
-- Prompts preparation for [`ID-2K`](/src/stable/prompt.ipynb) and [`COCO-10K`](/src/stable/coco_furniture_images.ipynb)
+- Prompts preparation for [`ID-2K`](/src/notebooks/stable/prompt.ipynb) and [`COCO-10K`](/src/notebooks/stable/coco_furniture_images.ipynb)
 - [`Main pipeline`](/src/notebooks/whole%20pipeline.ipynb): Trajectories generation, experiments with key compression and demos
 - [`Adaptive skipping`](/src/notebooks/adaptive_skipping.ipynb): Retrieval logic and compression tools
 - [`Retrieval Diffusion module`](/src/retrieval/): All functions to work with Retrieval Diffusion (Knowledge Base, Trajectories, Generation, Neighbours search). Partially based on ReDi approach.
