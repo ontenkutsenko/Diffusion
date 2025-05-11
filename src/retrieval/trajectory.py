@@ -9,7 +9,7 @@ import torch
 import xxhash
 from diffusers import SchedulerMixin, StableDiffusionPipeline
 
-from redi.pipeline_re_sd import ReSDPipeline
+from retrieval.pipeline_re_sd import ReSDPipeline
 
 
 def generate_trajectory(

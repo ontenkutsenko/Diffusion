@@ -8,7 +8,7 @@ import numpy as np
 from sklearn.decomposition import PCA
 from tqdm import tqdm
 
-from redi.utils import load_jsonl
+from retrieval.utils import load_jsonl
 
 
 def create_kb(
