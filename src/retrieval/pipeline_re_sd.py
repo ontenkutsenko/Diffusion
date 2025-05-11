@@ -266,9 +266,7 @@ class ReSDPipeline(StableDiffusionPipeline):
             latent_model_input = (
                 torch.cat([latent] * 2) if do_classifier_free_guidance else latent
             )
-            latent_model_input = self.scheduler.scale_model_input(
-                latent_model_input, t
-            )
+            latent_model_input = self.scheduler.scale_model_input(latent_model_input, t)
 
             noise_pred = self.unet(
                 latent_model_input, t, encoder_hidden_states=text_embeddings
@@ -283,7 +281,7 @@ class ReSDPipeline(StableDiffusionPipeline):
             # Denoising step
             latent = self.scheduler.step(noise_pred, t, latent).prev_sample
 
-                # progress_bar.update()
+            # progress_bar.update()
 
         # Decode
         image = self.decode_latents(latent)

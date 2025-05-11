@@ -3,7 +3,6 @@ import time
 
 import faiss
 import h5py
-import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import xxhash
