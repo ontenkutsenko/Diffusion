@@ -24,7 +24,7 @@ This project explores **sampling efficiency in Latent Diffusion Models** using r
 - [`Adaptive skipping`](/src/notebooks/adaptive_skipping.ipynb): Retrieval logic and compression tools
 - [`Retrieval Diffusion module`](/src/retrieval/): All functions to work with Retrieval Diffusion (Knowledge Base, Trajectories, Generation, Neighbours search). Partially based on ReDi approach.
 - [`Results`](/src/data/results/): All the artifacts of experimentation
-- [`Data`](/src/data/): Lightweight files with prompts etc. Main datsets with trajectories are kept in [HuggingFace dataset](https://huggingface.co/datasets/ontenkutsenko/diffusion_trajectories)
+- [`Data`](/src/data/): Lightweight files with prompts etc. Main datsets with trajectories and all prompts are kept in [HuggingFace dataset](https://huggingface.co/datasets/ontenkutsenko/diffusion_trajectories)
 - [`Metrics`](/src/metrics/): Functions for computing FID, CLIPScore, PickScore and IS
 
 ## ✅ Requirements
