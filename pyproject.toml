@@ -47,10 +47,6 @@ doc = [ "sphinx<9.0.0,>=8.0.0" ]
 
 
 
-[tool.pdm]
-# to generate the wheel with pdm build
-distribution = true
-
 [tool.pdm.scripts]
 precommit = "sh -c 'pre-commit run --show-diff-on-failure --color=always --files $(git ls-files)'"
 
